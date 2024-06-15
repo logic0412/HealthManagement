@@ -1,0 +1,7 @@
+<view class="container">
+  <view class="title">药单管理</view>
+  <view class="medication-list">
+    <!-- 这里可以用来展示药单列表 -->
+    <text>药单内容展示区域</text>
+  </view>
+</view>
