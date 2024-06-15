@@ -1,0 +1,8 @@
+<!-- pages/login/login.wxml -->
+<view class="container">
+  <button open-type="getUserInfo" bindgetuserinfo="wechatLogin">微信一键登录</button>
+  <view class="divider"></view>
+  <input class="input" type="text" placeholder="请输入手机号" bindinput="inputPhone" />
+  <input class="input" type="password" placeholder="请输入密码" bindinput="inputPassword" />
+  <button class="button" bindtap="manualLogin">登录/注册</button>
+</view>
