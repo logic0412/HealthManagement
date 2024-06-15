@@ -1,8 +1,0 @@
-<!-- pages/profile/profile.wxml -->
-<view class="profile-container">
-  <view class="user-info" bindtap="goToLogin">
-    <image src="{{userInfo.avatarUrl || '1814089_account_user_person_profile_avatar_icon.png'}}" class="avatar"></image>
-    <text class="username">{{userInfo.nickName || '登录/注册'}}</text>
-  </view>
-  <!-- 其他个人页面内容 -->
-</view>
