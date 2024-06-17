@@ -1,27 +1,50 @@
 /* pages/login/login.wxss */
 .container {
-  padding: 20px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.logo {
+  margin-bottom: 40px;
+}
+
+.logo image {
+  width: 60px; /* Adjust according to your logo */
+  height: 60px; /* Adjust according to your logo */
+}
+
+.wechat-button, .login-button {
+  width: 80%;
+  height: 50px;
+  line-height: 50px;
+  background-color: #1AAD19;
+  color: white;
+  border-radius: 25px;
+  margin: 10px 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+.input-group {
+  width: 80%;
 }
 
 .input {
-  margin-bottom: 10px;
-  height: 40px;
-  line-height: 40px;
+  width: 100%;
+  height: 45px;
+  margin: 10px 0;
   padding: 0 10px;
+  border-radius: 5px;
   border: 1px solid #ccc;
-}
-
-.button {
-  background-color: #1AAD19;
-  color: white;
-  border: none;
-  padding: 10px;
-  margin-top: 10px;
+  font-size: 16px;
 }
 
 .divider {
+  width: 80%;
   height: 1px;
   background-color: #ccc;
   margin: 20px 0;

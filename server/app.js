@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const axios = require('axios');
+const bcrypt = require('bcrypt');
 
 const app = express();
 app.use(bodyParser.json());
@@ -63,6 +64,48 @@ app.post('/api/wechat-login', async (req, res) => {
       res.status(500).send({ success: false, message: '服务器错误', error: error.message });
     }
   });
+
+// 登录或注册API
+app.post('/api/login', (req, res) => {
+  const { phone, password } = req.body;
+  const sqlFindUser = 'SELECT * FROM users WHERE phone = ?';
+  db.query(sqlFindUser, [phone], async (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send({ success: false, message: '数据库查询错误' });
+    }
+    if (results.length > 0) {
+      // 用户存在，验证密码
+      const user = results[0];
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (passwordMatch) {
+        const { password, ...userInfo } = user; // 剔除密码信息
+        res.send({ success: true, user: userInfo });
+      } else {
+        res.send({ success: false, message: '密码错误' });
+      }
+    } else {
+      // 用户不存在，创建新用户
+      const hashedPassword = await bcrypt.hash(password, 10); // 加密密码
+      const sqlCreateUser = 'INSERT INTO users (username, name, email, phone, password) VALUES (?, ?, ?, ?, ?)';
+      const defaultEmail = `${phone}@example.com`; // 示例邮箱，应调整为适当的值或从请求中获取
+      db.query(sqlCreateUser, [phone, 'New User', defaultEmail, phone, hashedPassword], (err, result) => {
+        if (err) {
+          console.error('Error creating user:', err);
+          return res.status(500).send({ success: false, message: '创建用户失败' });
+        }
+        const newUser = {
+          id: result.insertId,
+          username: phone,
+          name: 'New User',
+          email: defaultEmail,
+          phone: phone
+        };
+        res.send({ success: true, user: newUser });
+      });
+    }
+  });
+});
 
 // 监听端口
 const port = 3000;
