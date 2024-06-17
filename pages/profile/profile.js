@@ -1,27 +1,33 @@
 // pages/profile/profile.js
+const app = getApp();  // 获取App实例
+
 Page({
   data: {
-    userInfo: {}
+    userInfo: {},
   },
 
   onShow: function() {
-    const app = getApp();
+    // 直接使用全局数据更新页面数据
     if (app.globalData.isUserLoggedIn) {
-      const userInfo = wx.getStorageSync('userInfo');
       this.setData({
-        userInfo: userInfo
+        userInfo: app.globalData.userInfo  // 使用全局的用户信息
       });
     } else {
       this.setData({
-        userInfo: {} // 清空用户信息显示默认
+        userInfo: {}  // 清空用户信息显示默认
       });
     }
   },
 
-  goToLogin: function() {
-    if (!this.data.userInfo.nickName) {
+  handleTap: function() {
+    // 根据登录状态决定跳转目标
+    if (app.globalData.isUserLoggedIn) {
       wx.navigateTo({
-        url: '/pages/login/login' // 确保你的登录页面路径正确
+        url: '/pages/myprofile/myprofile'  // 确保你已创建myprofile页面
+      });
+    } else {
+      wx.navigateTo({
+        url: '/pages/login/login'
       });
     }
   }

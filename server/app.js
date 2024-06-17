@@ -18,23 +18,12 @@ const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE
+  database: process.env.DB_NAME
 });
 
 db.connect(err => {
   if (err) throw err;
   console.log('Database connected!');
-});
-
-// 登录API
-app.post('/api/login', (req, res) => {
-  const { phone, password } = req.body;
-  const sql = 'SELECT * FROM users WHERE phone = ? AND password = ?';
-  db.query(sql, [phone, password], (err, result) => {
-    if (err) res.status(500).send({ success: false, message: 'Database error' });
-    else if (result.length > 0) res.send({ success: true, user: result[0] });
-    else res.send({ success: false, message: '登录失败，请检查手机号和密码是否正确' });
-  });
 });
 
 // 微信登录API
@@ -87,9 +76,13 @@ app.post('/api/login', (req, res) => {
     } else {
       // 用户不存在，创建新用户
       const hashedPassword = await bcrypt.hash(password, 10); // 加密密码
-      const sqlCreateUser = 'INSERT INTO users (username, name, email, phone, password) VALUES (?, ?, ?, ?, ?)';
+      const defaultMealTime = '08:00:00'; // 设置默认餐饮时间为早上8点，按需要调整
+      const sqlCreateUser = `
+        INSERT INTO users 
+        (username, name, email, phone, password, breakfast_time, lunch_time, dinner_time) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
       const defaultEmail = `${phone}@example.com`; // 示例邮箱，应调整为适当的值或从请求中获取
-      db.query(sqlCreateUser, [phone, 'New User', defaultEmail, phone, hashedPassword], (err, result) => {
+      db.query(sqlCreateUser, [phone, 'New User', defaultEmail, phone, hashedPassword, defaultMealTime, defaultMealTime, defaultMealTime], (err, result) => {
         if (err) {
           console.error('Error creating user:', err);
           return res.status(500).send({ success: false, message: '创建用户失败' });
@@ -97,9 +90,12 @@ app.post('/api/login', (req, res) => {
         const newUser = {
           id: result.insertId,
           username: phone,
-          name: 'New User',
+          name: phone,
           email: defaultEmail,
-          phone: phone
+          phone: phone,
+          breakfast_time: defaultMealTime,
+          lunch_time: defaultMealTime,
+          dinner_time: defaultMealTime
         };
         res.send({ success: true, user: newUser });
       });
