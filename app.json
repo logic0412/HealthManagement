@@ -4,7 +4,8 @@
     "pages/reminders/reminders",
     "pages/search/search",
     "pages/profile/profile",
-    "pages/login/login"
+    "pages/login/login",
+    "pages/myprofile/myprofile"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",

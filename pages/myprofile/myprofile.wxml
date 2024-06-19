@@ -1,0 +1,35 @@
+<!-- pages/myprofile/myprofile.wxml -->
+<view class="container">
+    <view class="input-group">
+        <text class="label">用户名:</text>
+        <input class="input" type="text" value="{{userInfo.name}}" bindinput="onInput" data-field="name"/>
+    </view>
+    <view class="input-group">
+        <text class="label">电子邮件:</text>
+        <input class="input" type="text" value="{{userInfo.email}}" bindinput="onInput" data-field="email"/>
+    </view>
+    <view class="input-group">
+        <text class="label">电话号码:</text>
+        <input class="input" type="text" value="{{userInfo.phone}}" bindinput="onInput" data-field="phone"/>
+    </view>
+    <view class="input-group">
+        <text class="label">早餐时间:</text>
+        <picker mode="time" value="{{userInfo.breakfast_time}}" bindchange="onTimeChange" data-field="breakfast_time">
+            <view class="picker">{{userInfo.breakfast_time}}</view>
+        </picker>
+    </view>
+    <view class="input-group">
+        <text class="label">午餐时间:</text>
+        <picker mode="time" value="{{userInfo.lunch_time}}" bindchange="onTimeChange" data-field="lunch_time">
+            <view class="picker">{{userInfo.lunch_time}}</view>
+        </picker>
+    </view>
+    <view class="input-group">
+        <text class="label">晚餐时间:</text>
+        <picker mode="time" value="{{userInfo.dinner_time}}" bindchange="onTimeChange" data-field="dinner_time">
+            <view class="picker">{{userInfo.dinner_time}}</view>
+        </picker>
+    </view>
+    <button class="button" bindtap="updateUserInfo">保存修改</button>
+    <button class="button reset" bindtap="resetPassword">重置密码</button>
+</view>
