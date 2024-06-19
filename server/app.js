@@ -112,11 +112,13 @@ app.listen(port, () => {
 // 搜索药品信息
 app.get('/api/search/drugs', (req, res) => {
   const { keyword } = req.query;
-  if (!keyword) {
+  console.log("Received keyword:", keyword);  // Log the received keyword
+
+  if (!keyword.trim()) {
     return res.status(400).send({ success: false, message: '需要提供搜索关键词' });
   }
   const sqlSearchDrug = 'SELECT * FROM drug_info WHERE name LIKE ? OR description LIKE ?';
-  const searchKeyword = `%${keyword}%`;
+  const searchKeyword = `%${keyword.trim()}%`;
   db.query(sqlSearchDrug, [searchKeyword, searchKeyword], (err, results) => {
     if (err) {
       console.error('Database query error:', err);
@@ -125,6 +127,8 @@ app.get('/api/search/drugs', (req, res) => {
     res.send({ success: true, drugs: results });
   });
 });
+
+
 
 // 搜索附近的药店
 app.get('/api/search/nearby-stores', async (req, res) => {
