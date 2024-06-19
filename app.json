@@ -5,7 +5,8 @@
     "pages/search/search",
     "pages/profile/profile",
     "pages/login/login",
-    "pages/myprofile/myprofile"
+    "pages/myprofile/myprofile",
+    "pages/resetPassword/resetPassword"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",

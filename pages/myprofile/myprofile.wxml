@@ -1,12 +1,17 @@
 <!-- pages/myprofile/myprofile.wxml -->
 <view class="container">
-    <view class="input-group">
+    <view class="title">个人信息</view>
+        <view class="input-group">
         <text class="label">用户名:</text>
+        <input class="input" type="text" value="{{userInfo.username}}" bindinput="onInput" data-field="username"/>
+    </view>
+    <view class="input-group">
+        <text class="label">真实姓名:</text>
         <input class="input" type="text" value="{{userInfo.name}}" bindinput="onInput" data-field="name"/>
     </view>
     <view class="input-group">
         <text class="label">电子邮件:</text>
-        <input class="input" type="text" value="{{userInfo.email}}" bindinput="onInput" data-field="email"/>
+        <input class="input" type="email" value="{{userInfo.email}}" bindinput="onInput" data-field="email"/>
     </view>
     <view class="input-group">
         <text class="label">电话号码:</text>

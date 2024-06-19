@@ -81,7 +81,7 @@ app.post('/api/login', (req, res) => {
         INSERT INTO users 
         (username, name, email, phone, password, breakfast_time, lunch_time, dinner_time) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-      const defaultEmail = `${phone}@example.com`; // 示例邮箱，应调整为适当的值或从请求中获取
+      const defaultEmail = `default@example.com`; // 示例邮箱，应调整为适当的值或从请求中获取
       db.query(sqlCreateUser, [phone, 'New User', defaultEmail, phone, hashedPassword, defaultMealTime, defaultMealTime, defaultMealTime], (err, result) => {
         if (err) {
           console.error('Error creating user:', err);
@@ -96,17 +96,70 @@ app.post('/api/login', (req, res) => {
           breakfast_time: defaultMealTime,
           lunch_time: defaultMealTime,
           dinner_time: defaultMealTime
-        };
+        }
         res.send({ success: true, user: newUser });
       });
     }
   });
 });
 
-// 监听端口
-const port = 3000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// 更新用户信息API
+app.post('/api/updateUserInfo', (req, res) => {
+  const { id, username, name, email, phone, breakfast_time, lunch_time, dinner_time } = req.body;
+
+  const sql = `
+      UPDATE users SET
+      username = ?,
+      name = ?,
+      email = ?,
+      phone = ?,
+      breakfast_time = ?,
+      lunch_time = ?,
+      dinner_time = ?
+      WHERE id = ?`;
+
+  db.query(sql, [username, name, email, phone, breakfast_time, lunch_time, dinner_time, id], (err, result) => {
+      if (err) {
+          console.error('Failed to update user info:', err);
+          res.status(500).send({ success: false, message: 'Failed to update user information.' });
+      } else {
+          console.log('Updated user info successfully.');
+          res.send({ success: true, message: 'User information updated successfully.' });
+      }
+  });
+});
+
+// 重置密码API
+app.post('/api/changePassword', (req, res) => {
+  const { phone, oldPassword, newPassword } = req.body;
+
+  // 根据手机号找到用户
+  const sqlFindUser = 'SELECT * FROM users WHERE phone = ?';
+  db.query(sqlFindUser, [phone], async (err, results) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send({ success: false, message: '数据库查询错误' });
+      }
+      if (results.length > 0) {
+          const user = results[0];
+          const passwordMatch = await bcrypt.compare(oldPassword, user.password);
+          if (passwordMatch) {
+              const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+              const sqlUpdatePassword = 'UPDATE users SET password = ? WHERE phone = ?';
+              db.query(sqlUpdatePassword, [hashedNewPassword, phone], (err, result) => {
+                  if (err) {
+                      console.error('Failed to update password:', err);
+                      return res.status(500).send({ success: false, message: '密码更新失败' });
+                  }
+                  res.send({ success: true, message: '密码更新成功' });
+              });
+          } else {
+              res.send({ success: false, message: '旧密码不正确' });
+          }
+      } else {
+          res.status(404).send({ success: false, message: '用户不存在' });
+      }
+  });
 });
 
 // 搜索药品信息
@@ -129,7 +182,6 @@ app.get('/api/search/drugs', (req, res) => {
 });
 
 
-
 // 搜索附近的药店
 app.get('/api/search/nearby-stores', async (req, res) => {
   const { latitude, longitude } = req.query;
@@ -150,3 +202,11 @@ app.get('/api/search/nearby-stores', async (req, res) => {
     res.status(500).send({ success: false, message: '服务器错误', error: error.message });
   }
 });
+
+
+// 监听端口
+const port = 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
+
