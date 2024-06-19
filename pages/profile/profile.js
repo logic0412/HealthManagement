@@ -23,7 +23,7 @@ Page({
     // 根据登录状态决定跳转目标
     if (app.globalData.isUserLoggedIn) {
       wx.navigateTo({
-        url: '/pages/myprofile/myprofile'  // 确保你已创建myprofile页面
+        url: '/pages/myprofile/myprofile'
       });
     } else {
       wx.navigateTo({
