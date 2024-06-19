@@ -1,16 +1,26 @@
-page {
-  height: 100vh;
+/* search.wxss */
+.container {
+  padding: 10px;
+}
+
+.search-bar {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  margin-bottom: 20px;
 }
-.scrollarea {
+
+.search-bar input {
   flex: 1;
-  overflow-y: hidden;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
 }
-.log-item {
-  margin-top: 20rpx;
-  text-align: center;
+
+.search-bar button {
+  margin-left: 10px;
 }
-.log-item:last-child {
-  padding-bottom: env(safe-area-inset-bottom);
+
+.search-results view {
+  padding: 5px;
+  border-bottom: 1px solid #eee;
 }
