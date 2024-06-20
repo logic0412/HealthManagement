@@ -162,6 +162,34 @@ app.post('/api/changePassword', (req, res) => {
   });
 });
 
+//忘记密码api
+app.post('/api/resetPassword', (req, res) => {
+  const { name, phone, newPassword } = req.body;
+  const hashedPassword = bcrypt.hashSync(newPassword, 10);  // 对新密码进行加密
+
+  // 验证用户信息
+  const sql = 'SELECT * FROM users WHERE name = ? AND phone = ?';
+  db.query(sql, [name, phone], (err, results) => {
+      if (err) {
+          console.error('Database error:', err);
+          return res.status(500).send({ success: false, message: '数据库错误' });
+      }
+      if (results.length > 0) {
+          // 用户验证成功，更新密码
+          const updateSql = 'UPDATE users SET password = ? WHERE phone = ?';
+          db.query(updateSql, [hashedPassword, phone], (err, result) => {
+              if (err) {
+                  console.error('Failed to update password:', err);
+                  return res.status(500).send({ success: false, message: '密码更新失败' });
+              }
+              res.send({ success: true, message: '密码已重置' });
+          });
+      } else {
+          res.status(404).send({ success: false, message: '用户不存在' });
+      }
+  });
+});
+
 // 搜索药品信息
 app.get('/api/search/drugs', (req, res) => {
   const db = mysql.createConnection({

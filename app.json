@@ -6,7 +6,8 @@
     "pages/profile/profile",
     "pages/login/login",
     "pages/myprofile/myprofile",
-    "pages/resetPassword/resetPassword"
+    "pages/resetPassword/resetPassword",
+    "pages/forgetPassword/forgetPassword"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",
