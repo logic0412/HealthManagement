@@ -1,7 +1,7 @@
 <!-- search.wxml -->
 <view class="container">
   <view class="search-bar">
-    <input placeholder="请输入药品名称或关键词" value="{{inputVal}}" focus="{{inputShowed}}" onInput="inputTyping" onBlur="hideInput" />
+    <input placeholder="请输入药品名称或关键词" value="{{inputVal}}" focus="{{inputShowed}}" bindinput="inputTyping" onBlur="hideInput" />
     <button bindtap="searchDrugs">搜索药品</button>
     <button bindtap="searchNearbyStores">搜索附近药店</button>
   </view>

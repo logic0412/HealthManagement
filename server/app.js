@@ -164,22 +164,34 @@ app.post('/api/changePassword', (req, res) => {
 
 // 搜索药品信息
 app.get('/api/search/drugs', (req, res) => {
-  const { keyword } = req.query;
-  console.log("Received keyword:", keyword);  // Log the received keyword
+  const db = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
+  });
 
-  if (!keyword.trim()) {
-    return res.status(400).send({ success: false, message: '需要提供搜索关键词' });
-  }
-  const sqlSearchDrug = 'SELECT * FROM drug_info WHERE name LIKE ? OR description LIKE ?';
-  const searchKeyword = `%${keyword.trim()}%`;
-  db.query(sqlSearchDrug, [searchKeyword, searchKeyword], (err, results) => {
+  db.connect(err => {
     if (err) {
-      console.error('Database query error:', err);
-      return res.status(500).send({ success: false, message: '数据库查询错误' });
+      console.error('Database connection error:', err);
+      return res.status(500).send({ success: false, message: '数据库连接失败' });
     }
-    res.send({ success: true, drugs: results });
+
+    const { keyword } = req.query;
+    const searchKeyword = `%${keyword}%`;
+    const sqlSearchDrug = 'SELECT * FROM drug_info WHERE name LIKE ? OR description LIKE ?';
+
+    db.query(sqlSearchDrug, [searchKeyword, searchKeyword], (err, results) => {
+      db.end(); // 关闭数据库连接
+      if (err) {
+        console.error('Database query error:', err);
+        return res.status(500).send({ success: false, message: '数据库查询错误' });
+      }
+      res.send({ success: true, drugs: results });
+    });
   });
 });
+
 
 
 // 搜索附近的药店
