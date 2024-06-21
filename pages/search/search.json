@@ -1,4 +1,7 @@
 {
-  "usingComponents": {
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的应用需要获取地理位置权限"
+    }
   }
 }
