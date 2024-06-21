@@ -8,6 +8,10 @@
   padding: 20px;
 }
 
+.link-group {
+  margin-top: 10px;
+}
+
 .logo {
   margin-bottom: 40px;
 }

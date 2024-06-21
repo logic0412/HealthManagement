@@ -8,6 +8,9 @@
     <input class="input" type="password" placeholder="请输入密码" bindinput="inputPassword" />
   </view>
   <button class="login-button" bindtap="manualLogin">登录/注册</button>
+  <view class="link-group">
+    <navigator url="/pages/forgetPassword/forgetPassword" class="forget-password">忘记密码？</navigator>
+  </view>
   <view class="divider"></view>
   <button class="wechat-button" open-type="getUserInfo" bindgetuserinfo="wechatLogin">微信一键登录</button>
 </view>
