@@ -1,26 +1,54 @@
 /* search.wxss */
 .container {
-  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
 }
 
 .search-bar {
   display: flex;
-  flex-direction: row;
+  flex-direction: row; /* 水平排列 */
+  align-items: center; /* 垂直居中 */
   margin-bottom: 20px;
 }
 
 .search-bar input {
-  flex: 1;
-  border: 1px solid #ccc;
+  flex-grow: 1; /* 输入框自动填充剩余空间 */
   padding: 10px;
-  border-radius: 5px;
+  border: 2px solid #ccc;
+  border-right: none; /* 去掉输入框右边的边框以和按钮融合 */
+  border-radius: 5px 0 0 5px; /* 只对输入框的左侧边缘设置圆角 */
 }
 
 .search-bar button {
-  margin-left: 10px;
+  background-color: #1AAD19;
+  color: white;
+  border-radius: 0 5px 5px 0; /* 只对按钮的右侧边缘设置圆角 */
+  cursor: pointer; /* 鼠标样式 */
 }
 
 .search-results view {
-  padding: 5px;
+  padding: 10px;
   border-bottom: 1px solid #eee;
 }
+
+.map {
+  margin-top: 20px;
+  border-radius: 10px; /* 地图的圆角 */
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* 阴影效果 */
+}
+
+.search-button button {
+  border: 1px solid #1AAD19;
+  background-color: #1AAD19;
+  color: white;
+  border-radius: 5px; /* 全圆角，因为这个按钮可能是独立的，不与其他元素相连 */
+  cursor: pointer;
+  display: block; /* 使按钮宽度填满容器宽度 */
+  margin: 10px 0; /* 上下边距，使得按钮之间有间隔 */
+  /*width: calc(100% - 20px);  减去边距保持按钮内部宽度 */
+}
+

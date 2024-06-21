@@ -200,13 +200,20 @@ app.get('/api/search/nearby-stores', async (req, res) => {
   if (!latitude || !longitude) {
     return res.status(400).send({ success: false, message: '需要提供经纬度信息' });
   }
-  const radius = 1000; // 搜索半径为1000米，可以根据实际需要调整
-  const url = `https://apis.map.qq.com/ws/place/v1/search?boundary=nearby(${latitude},${longitude},${radius})&keyword=药店&key=你的腾讯位置服务API密钥`;
+  const radius = 1000; // 搜索半径为1000米
+  const url = `https://apis.map.qq.com/ws/place/v1/search?boundary=nearby(${latitude},${longitude},${radius})&keyword=药店&key=7DQBZ-FW53Q-NZX5T-2IBD6-WOSMZ-ORFZG`;
 
   try {
     const response = await axios.get(url);
-    if (response.data.status === 0) { // 状态码0表示请求成功
-      res.send({ success: true, stores: response.data.data });
+    if (response.data.status === 0) {
+      res.send({
+        success: true,
+        stores: response.data.data.map(store => ({
+          id: store.id,
+          title: store.title,
+          location: store.location
+        }))
+      });
     } else {
       res.send({ success: false, message: '地图服务请求失败', detail: response.data.message });
     }
@@ -214,6 +221,7 @@ app.get('/api/search/nearby-stores', async (req, res) => {
     res.status(500).send({ success: false, message: '服务器错误', error: error.message });
   }
 });
+
 
 
 // 监听端口

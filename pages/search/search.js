@@ -73,6 +73,7 @@ Page({
     });
   },
 
+  // 假设你的小程序页面的逻辑部分有如下函数
   searchNearbyStores: function () {
     const that = this;
     wx.getLocation({
@@ -81,20 +82,36 @@ Page({
         const latitude = res.latitude;
         const longitude = res.longitude;
         wx.request({
-          url: "腾讯位置服务API或其他地图API",
+          url: "http://58.35.232.125:3000/api/search/nearby-stores",
           data: {
             latitude: latitude,
             longitude: longitude,
           },
-          success: function (res) {
-            const markers = res.data.map((item) => ({
-              id: item.id,
-              latitude: item.latitude,
-              longitude: item.longitude,
-              name: item.name,
-            }));
-            that.setData({
-              markers: markers,
+          success: function (response) {
+            if (response.data.success) {
+              const markers = response.data.stores.map((store) => ({
+                id: store.id,
+                latitude: store.location.lat,
+                longitude: store.location.lng,
+                name: store.title,
+                iconPath: "/resources/location.png", // 可以是药店的图标
+                width: 50,
+                height: 50,
+              }));
+              that.setData({
+                markers: markers,
+              });
+            } else {
+              wx.showToast({
+                title: "搜索失败: " + response.data.message,
+                icon: "none",
+              });
+            }
+          },
+          fail: function () {
+            wx.showToast({
+              title: "请求失败",
+              icon: "none",
             });
           },
         });
