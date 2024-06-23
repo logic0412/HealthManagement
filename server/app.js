@@ -250,6 +250,81 @@ app.get('/api/search/nearby-stores', async (req, res) => {
   }
 });
 
+//加载药单
+app.get('/api/medications', (req, res) => {
+  const phone = req.query.phone;
+  if (!phone) {
+      return res.status(400).send({ success: false, message: 'Phone number is required.' });
+  }
+
+  // 首先根据电话号码查询用户ID
+  const findUserId = 'SELECT id FROM users WHERE phone = ?';
+  db.query(findUserId, [phone], (err, userResults) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send({ success: false, message: 'Database query error' });
+      }
+      if (userResults.length === 0) {
+          return res.status(404).send({ success: false, message: 'User not found' });
+      }
+
+      const userId = userResults[0].id;
+      
+      // 查询用户的所有药单
+      const sql = 'SELECT * FROM medications WHERE user_id = ?';
+      db.query(sql, [userId], (err, medsResults) => {
+          if (err) {
+              console.error('Failed to retrieve medications:', err);
+              return res.status(500).send({ success: false, message: 'Failed to retrieve medications' });
+          }
+          res.send({ success: true, medications: medsResults });
+      });
+  });
+});
+
+// 读取药物信息API
+app.get('/api/drug-info', (req, res) => {
+  const sql = 'SELECT id, name, defaultDosage, defaultFrequency FROM drug_info';
+  db.query(sql, (err, results) => {
+      if (err) {
+          console.error('Failed to retrieve drug information:', err);
+          return res.status(500).send({ success: false, message: 'Failed to retrieve drug information' });
+      }
+      res.send({ success: true, drugInfos: results });
+  });
+});
+
+// 创建新药单API
+app.post('/api/medications', (req, res) => {
+  const { phone, name, dosage, frequency, startDate, endDate, notes, takenToday } = req.body;
+  if (!phone) {
+      return res.status(400).send({ success: false, message: 'Phone number is required.' });
+  }
+
+  // 首先根据电话号码查询用户ID
+  const findUserId = 'SELECT id FROM users WHERE phone = ?';
+  db.query(findUserId, [phone], (err, userResults) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send({ success: false, message: 'Database query error' });
+      }
+      if (userResults.length === 0) {
+          return res.status(404).send({ success: false, message: 'User not found' });
+      }
+
+      const userId = userResults[0].id;
+
+      // 插入新的药单记录
+      const sql = 'INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes, taken_today) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+      db.query(sql, [userId, name, dosage, frequency, startDate, endDate, notes, takenToday], (err, result) => {
+          if (err) {
+              console.error('Failed to create a new medication entry:', err);
+              return res.status(500).send({ success: false, message: 'Failed to create a new medication entry' });
+          }
+          res.send({ success: true, message: 'Medication created successfully', medicationId: result.insertId });
+      });
+  });
+});
 
 
 // 监听端口

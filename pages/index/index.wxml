@@ -1,7 +1,56 @@
+<!-- pages/index/index.wxml -->
 <view class="container">
   <view class="title">药单管理</view>
   <view class="medication-list">
-    <!-- 这里可以用来展示药单列表 -->
-    <text>药单内容展示区域</text>
+    <block wx:for="{{medications}}" wx:key="id">
+      <view class="medication-item" bindtap="showDetails" data-item="{{item}}">
+        <text class="medication-name">{{item.name}}</text>
+      </view>
+    </block>
   </view>
+
+  <view class="rich-text-container" wx:if="{{showModal}}">
+    <view class="close-icon" bindtap="closeDetails">×</view>
+    <view wx:if="{{!isEditing}}">
+      <view class="modal-title">{{currentMedicationName}}</view>
+      <rich-text nodes="{{richTextDetails}}"></rich-text>
+    </view>
+    <view wx:if="{{isEditing}}" class="form-container">
+      <view class="input-group">
+        <label class="input-label">药品名称:</label>
+        <input class="input" value="{{currentMedication.name}}" bindinput="inputChange" data-param="name"/>
+      </view>
+      <view class="input-group">
+        <label class="input-label">剂量:</label>
+        <input class="input" value="{{currentMedication.dosage}}" bindinput="inputChange" data-param="dosage"/>
+      </view>
+      <view class="input-group">
+        <label class="input-label">频率:</label>
+        <input class="input" value="{{currentMedication.frequency}}" bindinput="inputChange" data-param="frequency"/>
+      </view>
+      <view class="input-group">
+        <label class="input-label">开始日期:</label>
+        <picker mode="date" value="{{currentMedication.start_date}}" bindchange="onDateChange" data-param="start_date">
+          <view class="picker-input">{{currentMedication.start_date || '选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="input-group">
+        <label class="input-label">结束日期:</label>
+        <picker mode="date" value="{{currentMedication.end_date}}" bindchange="onDateChange" data-param="end_date">
+          <view class="picker-input">{{currentMedication.end_date || '选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="input-group">
+        <label class="input-label">备注:</label>
+        <textarea class="textarea" bindinput="inputChange" data-param="notes">{{currentMedication.notes}}</textarea>
+      </view>
+    </view>
+    <view class="button-container">
+      <button wx:if="{{!isEditing}}" bindtap="startEditing" class="action-button">修改</button>
+      <button wx:if="{{isEditing}}" bindtap="saveChanges" class="action-button">保存</button>
+      <button wx:if="{{!isEditing}}" bindtap="deleteMedication" class="action-button delete-button">删除</button>
+    </view>
+  </view>
+
+  <button bindtap="showCreateForm" class="create-medication-button">创建新药单</button>
 </view>

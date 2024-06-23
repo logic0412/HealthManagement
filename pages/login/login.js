@@ -20,7 +20,7 @@ Page({
       success: res => {
         if (res.code) {
           wx.request({
-            url: 'http://58.35.232.125:3000/api/wechat-login',  // 服务器API地址
+            url: 'http://192.168.71.16:3000/api/wechat-login',  // 服务器API地址
             method: 'POST',
             data: { code: res.code },
             success: (resp) => {
@@ -59,7 +59,7 @@ Page({
 
   manualLogin: function() {
     wx.request({
-      url: 'http://58.35.232.125:3000/api/login',
+      url: 'http://192.168.71.16:3000/api/login',
       method: 'POST',
       data: { phone: this.data.phone, password: this.data.password },
       success: (res) => {
