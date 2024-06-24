@@ -74,9 +74,10 @@ Page({
   },
 
   searchNearbyStores: function () {
+    console.log("Search results:", 1)
     const that = this;
     wx.getLocation({
-      type: "wgs84",
+      type: "gcj02",
       success(res) {
         const latitude = res.latitude;
         const longitude = res.longitude;
@@ -89,7 +90,7 @@ Page({
 
         // 请求附近药店信息
         wx.request({
-          url: "http://你的服务器地址/api/search/nearby-stores",
+          url: "http://58.35.232.125:3000/api/search/nearby-stores",
           data: {
             latitude: latitude,
             longitude: longitude,
