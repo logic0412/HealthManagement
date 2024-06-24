@@ -152,12 +152,10 @@ app.post("/api/updateUserInfo", (req, res) => {
     (err, result) => {
       if (err) {
         console.error("Failed to update user info:", err);
-        res
-          .status(500)
-          .send({
-            success: false,
-            message: "Failed to update user information.",
-          });
+        res.status(500).send({
+          success: false,
+          message: "Failed to update user information.",
+        });
       } else {
         console.log("Updated user info successfully.");
         res.send({
@@ -311,86 +309,173 @@ app.get("/api/search/nearby-stores", async (req, res) => {
   }
 });
 
-<<<<<<< HEAD
 //加载药单
-app.get('/api/medications', (req, res) => {
+app.get("/api/medications", (req, res) => {
   const phone = req.query.phone;
   if (!phone) {
-      return res.status(400).send({ success: false, message: 'Phone number is required.' });
+    return res
+      .status(400)
+      .send({ success: false, message: "Phone number is required." });
   }
 
   // 首先根据电话号码查询用户ID
-  const findUserId = 'SELECT id FROM users WHERE phone = ?';
+  const findUserId = "SELECT id FROM users WHERE phone = ?";
   db.query(findUserId, [phone], (err, userResults) => {
-      if (err) {
-          console.error('Database query error:', err);
-          return res.status(500).send({ success: false, message: 'Database query error' });
-      }
-      if (userResults.length === 0) {
-          return res.status(404).send({ success: false, message: 'User not found' });
-      }
+    if (err) {
+      console.error("Database query error:", err);
+      return res
+        .status(500)
+        .send({ success: false, message: "Database query error" });
+    }
+    if (userResults.length === 0) {
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
+    }
 
-      const userId = userResults[0].id;
-      
-      // 查询用户的所有药单
-      const sql = 'SELECT * FROM medications WHERE user_id = ?';
-      db.query(sql, [userId], (err, medsResults) => {
-          if (err) {
-              console.error('Failed to retrieve medications:', err);
-              return res.status(500).send({ success: false, message: 'Failed to retrieve medications' });
-          }
-          res.send({ success: true, medications: medsResults });
-      });
+    const userId = userResults[0].id;
+
+    // 查询用户的所有药单
+    const sql = "SELECT * FROM medications WHERE user_id = ?";
+    db.query(sql, [userId], (err, medsResults) => {
+      if (err) {
+        console.error("Failed to retrieve medications:", err);
+        return res
+          .status(500)
+          .send({ success: false, message: "Failed to retrieve medications" });
+      }
+      res.send({ success: true, medications: medsResults });
+    });
   });
 });
 
 // 读取药物信息API
-app.get('/api/drug-info', (req, res) => {
-  const sql = 'SELECT id, name, defaultDosage, defaultFrequency FROM drug_info';
+app.get("/api/drug-info", (req, res) => {
+  const sql = "SELECT id, name, defaultDosage, defaultFrequency FROM drug_info";
   db.query(sql, (err, results) => {
-      if (err) {
-          console.error('Failed to retrieve drug information:', err);
-          return res.status(500).send({ success: false, message: 'Failed to retrieve drug information' });
-      }
-      res.send({ success: true, drugInfos: results });
+    if (err) {
+      console.error("Failed to retrieve drug information:", err);
+      return res
+        .status(500)
+        .send({
+          success: false,
+          message: "Failed to retrieve drug information",
+        });
+    }
+    res.send({ success: true, drugInfos: results });
   });
 });
 
-// 创建新药单API
-app.post('/api/medications', (req, res) => {
-  const { phone, name, dosage, frequency, startDate, endDate, notes, takenToday } = req.body;
-  if (!phone) {
-      return res.status(400).send({ success: false, message: 'Phone number is required.' });
+// PUT /api/medications/:id - 更新指定的药单
+app.put("/api/medications/:id", (req, res) => {
+  const { name, dosage, frequency, startDate, endDate, notes, takenToday } =
+    req.body;
+  const medicationId = req.params.id;
+
+  if (!medicationId) {
+    return res
+      .status(400)
+      .send({ success: false, message: "Medication ID is required." });
   }
 
-  // 首先根据电话号码查询用户ID
-  const findUserId = 'SELECT id FROM users WHERE phone = ?';
-  db.query(findUserId, [phone], (err, userResults) => {
+  const sql = `
+    UPDATE medications
+    SET name = ?, dosage = ?, frequency = ?, start_date = ?, end_date = ?, notes = ?, taken_today = ?
+    WHERE id = ?`;
+
+  db.query(
+    sql,
+    [
+      name,
+      dosage,
+      frequency,
+      startDate,
+      endDate,
+      notes,
+      takenToday,
+      medicationId,
+    ],
+    (err, result) => {
       if (err) {
-          console.error('Database query error:', err);
-          return res.status(500).send({ success: false, message: 'Database query error' });
+        console.error("Failed to update medication:", err);
+        return res
+          .status(500)
+          .send({ success: false, message: "Failed to update medication" });
       }
-      if (userResults.length === 0) {
-          return res.status(404).send({ success: false, message: 'User not found' });
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .send({ success: false, message: "Medication not found" });
       }
+      res.send({ success: true, message: "Medication updated successfully" });
+    }
+  );
+});
 
-      const userId = userResults[0].id;
+// DELETE /api/medications/:id - 删除指定的药单
+app.delete("/api/medications/:id", (req, res) => {
+  const medicationId = req.params.id;
 
-      // 插入新的药单记录
-      const sql = 'INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes, taken_today) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-      db.query(sql, [userId, name, dosage, frequency, startDate, endDate, notes, takenToday], (err, result) => {
-          if (err) {
-              console.error('Failed to create a new medication entry:', err);
-              return res.status(500).send({ success: false, message: 'Failed to create a new medication entry' });
-          }
-          res.send({ success: true, message: 'Medication created successfully', medicationId: result.insertId });
-      });
+  if (!medicationId) {
+    return res
+      .status(400)
+      .send({ success: false, message: "Medication ID is required." });
+  }
+
+  const sql = "DELETE FROM medications WHERE id = ?";
+
+  db.query(sql, [medicationId], (err, result) => {
+    if (err) {
+      console.error("Failed to delete medication:", err);
+      return res
+        .status(500)
+        .send({ success: false, message: "Failed to delete medication" });
+    }
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Medication not found" });
+    }
+    res.send({ success: true, message: "Medication deleted successfully" });
   });
 });
 
+// POST /api/medications - 创建新的药单
+app.post("/api/medications", (req, res) => {
+  const { user_id, name, dosage, frequency, start_date, end_date, notes } =
+    req.body;
 
-=======
->>>>>>> eff6963edfe26056cc16115d5df6f9da76cf0b3f
+  // 检查必要信息
+  if (!user_id || !name) {
+    return res
+      .status(400)
+      .send({ success: false, message: "User ID and Name are required." });
+  }
+
+  const sql =
+    "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  db.query(
+    sql,
+    [user_id, name, dosage, frequency, start_date, end_date, notes],
+    (err, result) => {
+      if (err) {
+        console.error("Failed to create a new medication:", err);
+        return res
+          .status(500)
+          .send({
+            success: false,
+            message: "Failed to create a new medication",
+          });
+      }
+      res.send({
+        success: true,
+        message: "Medication created successfully",
+        medicationId: result.insertId,
+      });
+    }
+  );
+});
+
 // 监听端口
 const port = 3000;
 app.listen(port, () => {
