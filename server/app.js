@@ -351,7 +351,7 @@ app.get("/api/medications", (req, res) => {
 
 // 读取药物信息API
 app.get("/api/drug-info", (req, res) => {
-  const sql = "SELECT id, name, defaultDosage, defaultFrequency FROM drug_info";
+  const sql = "SELECT id, name, dosage, frequency_per_day FROM drug_info";
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Failed to retrieve drug information:", err);
@@ -368,7 +368,7 @@ app.get("/api/drug-info", (req, res) => {
 
 // PUT /api/medications/:id - 更新指定的药单
 app.put("/api/medications/:id", (req, res) => {
-  const { name, dosage, frequency, startDate, endDate, notes, takenToday } =
+  const { name, dosage, frequency, start_date, end_date, notes, taken_today } =
     req.body;
   const medicationId = req.params.id;
 
@@ -389,10 +389,10 @@ app.put("/api/medications/:id", (req, res) => {
       name,
       dosage,
       frequency,
-      startDate,
-      endDate,
+      start_date,
+      end_date,
       notes,
-      takenToday,
+      taken_today,
       medicationId,
     ],
     (err, result) => {
@@ -442,39 +442,42 @@ app.delete("/api/medications/:id", (req, res) => {
 
 // POST /api/medications - 创建新的药单
 app.post("/api/medications", (req, res) => {
-  const { user_id, name, dosage, frequency, start_date, end_date, notes } =
-    req.body;
+  const { phone, name, dosage, frequency, start_date, end_date, notes } = req.body;
 
   // 检查必要信息
-  if (!user_id || !name) {
-    return res
-      .status(400)
-      .send({ success: false, message: "User ID and Name are required." });
+  if (!phone || !name) {
+    return res.status(400).send({ success: false, message: "Phone and Name are required." });
   }
 
-  const sql =
-    "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
-  db.query(
-    sql,
-    [user_id, name, dosage, frequency, start_date, end_date, notes],
-    (err, result) => {
-      if (err) {
-        console.error("Failed to create a new medication:", err);
-        return res
-          .status(500)
-          .send({
-            success: false,
-            message: "Failed to create a new medication",
-          });
-      }
-      res.send({
-        success: true,
-        message: "Medication created successfully",
-        medicationId: result.insertId,
-      });
+  // 先根据电话号码查询用户ID
+  const findUserId = 'SELECT id FROM users WHERE phone = ?';
+  db.query(findUserId, [phone], (err, userResults) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send({ success: false, message: 'Database query error' });
     }
-  );
+    if (userResults.length === 0) {
+      return res.status(404).send({ success: false, message: 'User not found' });
+    }
+
+    const userId = userResults[0].id; // 获取用户ID
+
+    // 插入新的药单记录
+    const sql = "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    db.query(
+      sql,
+      [userId, name, dosage, frequency, start_date, end_date, notes],
+      (err, result) => {
+        if (err) {
+          console.error("Failed to create a new medication:", err);
+          return res.status(500).send({ success: false, message: "Failed to create a new medication" });
+        }
+        res.send({ success: true, message: "Medication created successfully", medicationId: result.insertId });
+      }
+    );
+  });
 });
+
 
 // 监听端口
 const port = 3000;

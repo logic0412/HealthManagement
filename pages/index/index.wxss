@@ -103,7 +103,7 @@
 }
 
 .input-label {
-  width: 25%; /* 稍微缩小标签宽度 */
+  width: 30%; /* 稍微缩小标签宽度 */
   font-weight: bold; /* 加粗字体 */
   white-space: nowrap; /* 防止标签换行 */
   margin-right: 5px; /* 减少标签与输入框之间的空隙 */
@@ -111,7 +111,7 @@
 
 .input, .picker-input, .textarea {
   flex: 1;  /* 允许弹性伸缩以填充可用空间 */
-  width: auto;  /* 自动根据父容器宽度调整宽度 */
+  width: 100px;  /* 自动根据父容器宽度调整宽度 */
   max-width: calc(100% - 20px);  /* 最大宽度考虑内边距 */
   padding: 8px;
   margin-bottom: 10px;
@@ -120,7 +120,7 @@
 }
 
 .textarea {
-  height: 60px; /* 进一步减少文本域的高度 */
+  height: 40px; /* 进一步减少文本域的高度 */
   resize: none; /* 禁止调整大小 */
 }
 

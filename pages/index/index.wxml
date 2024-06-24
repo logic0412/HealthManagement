@@ -18,7 +18,9 @@
     <view wx:if="{{isEditing}}" class="form-container">
       <view class="input-group">
         <label class="input-label">药品名称:</label>
-        <input class="input" value="{{currentMedication.name}}" bindinput="inputChange" data-param="name"/>
+        <picker bindchange="onDrugChange" value="{{currentMedication.drug_id}}" range="{{drugInfos}}" range-key="name">
+          <view class="picker-label">{{currentMedication.name || '选择药品'}}</view>
+        </picker>
       </view>
       <view class="input-group">
         <label class="input-label">剂量:</label>
@@ -39,6 +41,10 @@
         <picker mode="date" value="{{currentMedication.end_date}}" bindchange="onDateChange" data-param="end_date">
           <view class="picker-input">{{currentMedication.end_date || '选择日期'}}</view>
         </picker>
+      </view>
+      <view class="input-group">
+        <label class="input-label">今日已服用:</label>
+        <input class="input" value="{{currentMedication.taken_today}}" bindinput="inputChange" data-param="taken_today"/>
       </view>
       <view class="input-group">
         <label class="input-label">备注:</label>
