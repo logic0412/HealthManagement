@@ -1,4 +1,9 @@
 {
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的应用需要获取地理位置权限"
+    }
+  },
   "pages": [
     "pages/index/index",
     "pages/reminders/reminders",
