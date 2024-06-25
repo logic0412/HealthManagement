@@ -1,5 +1,10 @@
 // reminders.js
 Page({
+
+  data: {
+    medications: []
+  },
+
   onShow: function() {
     const app = getApp();
     if (!app.globalData.isUserLoggedIn) {
@@ -20,6 +25,31 @@ Page({
       });
     } else {
       // 已登录状态下执行的代码
+      this.loadMedications();
     }
-  }
+  },
+
+  onLoad: function() {
+    this.loadMedications();
+  },
+
+  loadMedications: function () {
+    const app = getApp();
+    const userInfo = app.globalData.userInfo;
+    wx.request({
+      url: "http://192.168.71.16:3000/api/medications",
+      method: "GET",
+      data: { phone: userInfo.phone },
+      success: (res) => {
+        if (res.data.success) {
+          this.setData({ medications: res.data.medications });
+        } else {
+          wx.showToast({
+            title: "加载失败",
+            icon: "none",
+          });
+        }
+      },
+    });
+  },
 });

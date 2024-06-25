@@ -1,16 +1,39 @@
-page {
-  height: 100vh;
+/* 页面容器样式 */
+.container {
+  padding: 20px;
+}
+
+/* 日历容器样式 */
+.calendar-container {
+  margin-top: 20px;
+  background-color: #f8f8f8;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 单个药单项样式 */
+.medication-item {
+  background-color: #ffffff;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
-.scrollarea {
-  flex: 1;
-  overflow-y: hidden;
+
+/* 药品名称和日期的文字样式 */
+.medication-item text {
+  font-size: 16px;
+  color: #333;
 }
-.log-item {
-  margin-top: 20rpx;
-  text-align: center;
+
+/* 下次服药日期的强调样式 */
+.dose-date {
+  color: #ff4444;  /* 红色突出显示重要日期 */
+  font-weight: bold;
 }
-.log-item:last-child {
-  padding-bottom: env(safe-area-inset-bottom);
-}
+
+

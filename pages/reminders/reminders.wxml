@@ -1,6 +1,12 @@
-<!--logs.wxml-->
-<scroll-view class="scrollarea" scroll-y type="list">
-  <block wx:for="{{logs}}" wx:key="timeStamp" wx:for-item="log">
-    <view class="log-item">{{index + 1}}. {{log.date}}</view>
-  </block>
-</scroll-view>
+<view class="container">
+  <view class="title">服药日历</view>
+  <view class="calendar-container">
+    <block wx:for="{{medications}}" wx:key="id">
+      <view class="medication-item">
+        <text>{{item.name}}</text>
+        <text class="dose-date">下次服药日期: {{item.next_dose_date}}</text>
+      </view>
+    </block>
+  </view>
+  
+</view>
