@@ -355,12 +355,10 @@ app.get("/api/drug-info", (req, res) => {
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Failed to retrieve drug information:", err);
-      return res
-        .status(500)
-        .send({
-          success: false,
-          message: "Failed to retrieve drug information",
-        });
+      return res.status(500).send({
+        success: false,
+        message: "Failed to retrieve drug information",
+      });
     }
     res.send({ success: true, drugInfos: results });
   });
@@ -442,37 +440,54 @@ app.delete("/api/medications/:id", (req, res) => {
 
 // POST /api/medications - 创建新的药单
 app.post("/api/medications", (req, res) => {
-  const { phone, name, dosage, frequency, start_date, end_date, notes } = req.body;
+  const { phone, name, dosage, frequency, start_date, end_date, notes } =
+    req.body;
 
   // 检查必要信息
   if (!phone || !name) {
-    return res.status(400).send({ success: false, message: "Phone and Name are required." });
+    return res
+      .status(400)
+      .send({ success: false, message: "Phone and Name are required." });
   }
 
   // 先根据电话号码查询用户ID
-  const findUserId = 'SELECT id FROM users WHERE phone = ?';
+  const findUserId = "SELECT id FROM users WHERE phone = ?";
   db.query(findUserId, [phone], (err, userResults) => {
     if (err) {
-      console.error('Database query error:', err);
-      return res.status(500).send({ success: false, message: 'Database query error' });
+      console.error("Database query error:", err);
+      return res
+        .status(500)
+        .send({ success: false, message: "Database query error" });
     }
     if (userResults.length === 0) {
-      return res.status(404).send({ success: false, message: 'User not found' });
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
     }
 
     const userId = userResults[0].id; // 获取用户ID
 
     // 插入新的药单记录
-    const sql = "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    const sql =
+      "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
     db.query(
       sql,
       [userId, name, dosage, frequency, start_date, end_date, notes],
       (err, result) => {
         if (err) {
           console.error("Failed to create a new medication:", err);
-          return res.status(500).send({ success: false, message: "Failed to create a new medication" });
+          return res
+            .status(500)
+            .send({
+              success: false,
+              message: "Failed to create a new medication",
+            });
         }
-        res.send({ success: true, message: "Medication created successfully", medicationId: result.insertId });
+        res.send({
+          success: true,
+          message: "Medication created successfully",
+          medicationId: result.insertId,
+        });
       }
     );
   });
@@ -481,16 +496,26 @@ app.post("/api/medications", (req, res) => {
 // 服务端 - 获取指定日期的服药信息
 app.get("/api/medications/day", (req, res) => {
   const { date } = req.query; // 从查询参数中获取日期
-  const sql = "SELECT name, next_dose_time FROM medications WHERE next_dose_date = ?";
+  // 确保日期参数格式正确，例如：YYYY-MM-DD
+  const sql =
+    "SELECT id, name, dosage, frequency, notes, next_dose_date FROM medications WHERE next_dose_date = ?";
   db.query(sql, [date], (err, results) => {
     if (err) {
+      console.error("Database query error:", err);
       res.status(500).send({ success: false, message: "Database query error" });
       return;
     }
-    res.send({ success: true, medications: results });
+    if (results.length === 0) {
+      res.send({
+        success: true,
+        message: "No medications found for this date",
+        medications: [],
+      });
+    } else {
+      res.send({ success: true, medications: results });
+    }
   });
 });
-
 
 // 监听端口
 const port = 3000;
