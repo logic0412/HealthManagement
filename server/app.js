@@ -493,29 +493,22 @@ app.post("/api/medications", (req, res) => {
   });
 });
 
-// 服务端 - 获取指定日期的服药信息
-app.get("/api/medications/day", (req, res) => {
-  const { date } = req.query; // 从查询参数中获取日期
-  // 确保日期参数格式正确，例如：YYYY-MM-DD
-  const sql =
-    "SELECT id, name, dosage, frequency, notes, next_dose_date FROM medications WHERE next_dose_date = ?";
-  db.query(sql, [date], (err, results) => {
+// 服务端 - 获取当天的服药信息
+app.get("/api/medications/today", (req, res) => {
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+
+  const sql = "SELECT id, name, dosage, frequency, notes, next_dose_date FROM medications WHERE next_dose_date = ?";
+  db.query(sql, [dateString], (err, results) => {
     if (err) {
-      console.error("Database query error:", err);
+      console.error('Database query error:', err);
       res.status(500).send({ success: false, message: "Database query error" });
       return;
     }
-    if (results.length === 0) {
-      res.send({
-        success: true,
-        message: "No medications found for this date",
-        medications: [],
-      });
-    } else {
-      res.send({ success: true, medications: results });
-    }
+    res.send({ success: true, medications: results });
   });
 });
+
 
 // 监听端口
 const port = 3000;
