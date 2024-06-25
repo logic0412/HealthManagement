@@ -478,6 +478,19 @@ app.post("/api/medications", (req, res) => {
   });
 });
 
+// 服务端 - 获取指定日期的服药信息
+app.get("/api/medications/day", (req, res) => {
+  const { date } = req.query; // 从查询参数中获取日期
+  const sql = "SELECT name, next_dose_time FROM medications WHERE next_dose_date = ?";
+  db.query(sql, [date], (err, results) => {
+    if (err) {
+      res.status(500).send({ success: false, message: "Database query error" });
+      return;
+    }
+    res.send({ success: true, medications: results });
+  });
+});
+
 
 // 监听端口
 const port = 3000;
