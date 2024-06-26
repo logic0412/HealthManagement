@@ -366,48 +366,41 @@ app.get("/api/drug-info", (req, res) => {
 
 // PUT /api/medications/:id - 更新指定的药单
 app.put("/api/medications/:id", (req, res) => {
-  const { name, dosage, frequency, start_date, end_date, notes, taken_today } =
-    req.body;
+  const { name, dosage, frequency, start_date, end_date, notes, taken_today } = req.body;
   const medicationId = req.params.id;
 
   if (!medicationId) {
-    return res
-      .status(400)
-      .send({ success: false, message: "Medication ID is required." });
+    return res.status(400).send({ success: false, message: "Medication ID is required." });
   }
+
+  const today = new Date();
+  const nextDoseDay = calculateNextDoseDay(frequency, taken_today, today, end_date);
 
   const sql = `
     UPDATE medications
-    SET name = ?, dosage = ?, frequency = ?, start_date = ?, end_date = ?, notes = ?, taken_today = ?
+    SET name = ?, dosage = ?, frequency = ?, start_date = ?, end_date = ?, notes = ?, taken_today = ?, next_dose_date = ?
     WHERE id = ?`;
 
-  db.query(
-    sql,
-    [
-      name,
-      dosage,
-      frequency,
-      start_date,
-      end_date,
-      notes,
-      taken_today,
-      medicationId,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error("Failed to update medication:", err);
-        return res
-          .status(500)
-          .send({ success: false, message: "Failed to update medication" });
-      }
-      if (result.affectedRows === 0) {
-        return res
-          .status(404)
-          .send({ success: false, message: "Medication not found" });
-      }
-      res.send({ success: true, message: "Medication updated successfully" });
+  db.query(sql, [
+    name,
+    dosage,
+    frequency,
+    start_date,
+    end_date,
+    notes,
+    taken_today,
+    nextDoseDay, // Updated next dose date
+    medicationId
+  ], (err, result) => {
+    if (err) {
+      console.error("Failed to update medication:", err);
+      return res.status(500).send({ success: false, message: "Failed to update medication" });
     }
-  );
+    if (result.affectedRows === 0) {
+      return res.status(404).send({ success: false, message: "Medication not found" });
+    }
+    res.send({ success: true, message: "Medication updated successfully" });
+  });
 });
 
 // DELETE /api/medications/:id - 删除指定的药单
@@ -440,14 +433,11 @@ app.delete("/api/medications/:id", (req, res) => {
 
 // POST /api/medications - 创建新的药单
 app.post("/api/medications", (req, res) => {
-  const { phone, name, dosage, frequency, start_date, end_date, notes } =
-    req.body;
+  const { phone, name, dosage, frequency, start_date, end_date, notes, taken_today } = req.body;
 
   // 检查必要信息
   if (!phone || !name) {
-    return res
-      .status(400)
-      .send({ success: false, message: "Phone and Name are required." });
+    return res.status(400).send({ success: false, message: "Phone and Name are required." });
   }
 
   // 先根据电话号码查询用户ID
@@ -455,60 +445,167 @@ app.post("/api/medications", (req, res) => {
   db.query(findUserId, [phone], (err, userResults) => {
     if (err) {
       console.error("Database query error:", err);
-      return res
-        .status(500)
-        .send({ success: false, message: "Database query error" });
+      return res.status(500).send({ success: false, message: "Database query error" });
     }
     if (userResults.length === 0) {
-      return res
-        .status(404)
-        .send({ success: false, message: "User not found" });
+      return res.status(404).send({ success: false, message: "User not found" });
     }
 
     const userId = userResults[0].id; // 获取用户ID
+    const today = new Date();
+    const nextDoseDay = calculateNextDoseDay(frequency, taken_today, today, end_date);
 
     // 插入新的药单记录
-    const sql =
-      "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes) VALUES (?, ?, ?, ?, ?, ?, ?)";
-    db.query(
-      sql,
-      [userId, name, dosage, frequency, start_date, end_date, notes],
-      (err, result) => {
+    const sql = "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes, taken_today, next_dose_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    db.query(sql, [userId, name, dosage, frequency, start_date, end_date, notes, taken_today, nextDoseDay], (err, result) => {
+      if (err) {
+        console.error("Failed to create a new medication:", err);
+        return res.status(500).send({ success: false, message: "Failed to create a new medication" });
+      }
+
+      // 药单创建成功后，插入对应的提醒记录
+      const medicationId = result.insertId;
+      const insertReminder = "INSERT INTO reminders (user_id, medication_id) VALUES (?, ?)";
+      db.query(insertReminder, [userId, medicationId], (err, reminderResult) => {
         if (err) {
-          console.error("Failed to create a new medication:", err);
-          return res
-            .status(500)
-            .send({
-              success: false,
-              message: "Failed to create a new medication",
-            });
+          console.error("Failed to create a new reminder:", err);
+          return res.status(500).send({ success: false, message: "Failed to create a new reminder" });
         }
         res.send({
           success: true,
-          message: "Medication created successfully",
-          medicationId: result.insertId,
+          message: "Medication and reminder created successfully",
+          medicationId: medicationId
         });
-      }
-    );
+      });
+    });
   });
 });
 
-// 服务端 - 获取当天的服药信息
+function calculateNextDoseDay(frequency, taken_today, today, end_date) {
+  let nextDoseDay = new Date(today);
+  if (frequency - taken_today <= 0) {
+    nextDoseDay.setDate(nextDoseDay.getDate() + 1); // Move to next day
+  }
+
+  // Adjust for end_date if necessary
+  if (end_date && nextDoseDay > new Date(end_date)) {
+    nextDoseDay = new Date(end_date);
+  }
+
+  // Format date as YYYY-MM-DD
+  return `${nextDoseDay.getFullYear()}-${(nextDoseDay.getMonth() + 1).toString().padStart(2, '0')}-${nextDoseDay.getDate().toString().padStart(2, '0')}`;
+}
+
+// 获取当天药品API
 app.get("/api/medications/today", (req, res) => {
+  const phone = req.query.phone; // 从请求中获取电话号码
+
+  if (!phone) {
+    return res.status(400).send({ success: false, message: "Phone number is required." });
+  }
+
+  // 首先根据电话号码查询用户ID
+  const findUserId = 'SELECT id FROM users WHERE phone = ?';
+  db.query(findUserId, [phone], (err, userResults) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send({ success: false, message: 'Database query error' });
+    }
+    if (userResults.length === 0) {
+      return res.status(404).send({ success: false, message: 'User not found' });
+    }
+
+    const userId = userResults[0].id;
+
+    // 根据用户ID和当天日期查询药物信息
+    const today = new Date();
+    const dateString = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+    const sql = "SELECT id, name, dosage, frequency, notes, taken_today, next_dose_date FROM medications WHERE user_id = ? AND next_dose_date = ?";
+    
+    db.query(sql, [userId, dateString], (err, medsResults) => {
+      if (err) {
+        console.error('Failed to retrieve medications:', err);
+        return res.status(500).send({ success: false, message: 'Failed to retrieve medications' });
+      }
+      res.send({ success: true, medications: medsResults });
+    });
+  });
+});
+
+// 获取用户三餐时间API
+app.get("/api/user-meal-times", (req, res) => {
+  const phone = req.query.phone; // 从查询参数中获取电话号码
+
+  if (!phone) {
+    return res.status(400).send({ success: false, message: "Phone number is required." });
+  }
+
+  const sql = "SELECT breakfast_time, lunch_time, dinner_time FROM users WHERE phone = ?";
+  
+  db.query(sql, [phone], (err, results) => {
+    if (err) {
+      console.error("Database query error:", err);
+      return res.status(500).send({ success: false, message: "Database query error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send({ success: false, message: "User not found" });
+    }
+
+    // 假设我们总是找到恰好一个用户记录
+    const userMealTimes = results[0];
+    res.send({ success: true, userMealTimes });
+  });
+});
+
+// POST /api/medications/update-next-dose - 检查并更新next_dose_date和重置taken_today
+app.post("/api/medications/update-next-dose", (req, res) => {
+  const { phone } = req.body;
   const today = new Date();
   const dateString = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
 
-  const sql = "SELECT id, name, dosage, frequency, notes, next_dose_date FROM medications WHERE next_dose_date = ?";
-  db.query(sql, [dateString], (err, results) => {
+  // 查询用户ID
+  const userIdQuery = "SELECT id FROM users WHERE phone = ?";
+  db.query(userIdQuery, [phone], (err, userResults) => {
     if (err) {
-      console.error('Database query error:', err);
-      res.status(500).send({ success: false, message: "Database query error" });
-      return;
+      console.error("Database query error:", err);
+      return res.status(500).send({ success: false, message: "Database query error" });
     }
-    res.send({ success: true, medications: results });
+    if (userResults.length === 0) {
+      return res.status(404).send({ success: false, message: "User not found" });
+    }
+    const userId = userResults[0].id;
+
+    // 先查询是否需要更新
+    const checkUpdateSql = "SELECT id FROM medications WHERE user_id = ? AND next_dose_date < ? AND next_dose_date < end_date";
+    db.query(checkUpdateSql, [userId, dateString], (err, medsToUpdate) => {
+      if (err) {
+        console.error("Failed to check medications:", err);
+        return res.status(500).send({ success: false, message: "Failed to check medications" });
+      }
+
+      if (medsToUpdate.length > 0) {
+        // 执行更新
+        const updateSql = `
+          UPDATE medications
+          SET next_dose_date = DATE_ADD(next_dose_date, INTERVAL 1 DAY),
+              taken_today = 0
+          WHERE id IN (?)`;
+
+        const medsIds = medsToUpdate.map(med => med.id);
+        db.query(updateSql, [medsIds], (err, result) => {
+          if (err) {
+            console.error("Failed to update next_dose_date:", err);
+            return res.status(500).send({ success: false, message: "Failed to update next_dose_date" });
+          }
+          res.send({ success: true, message: "Next dose dates and taken_today updated successfully" });
+        });
+      } else {
+        res.send({ success: true, message: "No medications need updating" });
+      }
+    });
   });
 });
-
 
 // 监听端口
 const port = 3000;

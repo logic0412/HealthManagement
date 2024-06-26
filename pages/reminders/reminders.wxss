@@ -1,17 +1,103 @@
-.day-schedule {
-  display: flex;
-  flex-direction: column;
+.schedule-container {
   padding: 10px;
 }
 
-.hour-block {
+.schedule-title {
+  font-size: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.table-header {
+  display: flex;
+  background-color: #e0e0e0;
+  padding: 8px;
+  border-radius: 5px;
+  font-weight: bold;
   margin-bottom: 5px;
 }
 
-.hour {
-  font-weight: bold;
+.time-header {
+  width: 80px; /* 留出足够的空间以便时间居中显示 */
+  text-align: center;
+}
+
+.medication-header {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.day-schedule {
+  display: flex;
+  flex-direction: column;
+}
+
+.hour-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ccc;
+}
+
+/* 最后一行不显示分割线 */
+.hour-row:last-child {
+  border-bottom: none;
+}
+
+.hour-time {
+  width: 80px; /* 确保宽度与头部标题对齐 */
+  text-align: center; /* 文本居中显示 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.medication-info {
+  background-color: #f0f0f0;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  display: inline-block;
+  text-align: center;
 }
 
 .medications {
-  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
+
+.rich-text-container {
+  position: fixed;
+  top: 20%;
+  left: 5%;
+  right: 5%;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.close-icon {
+  font-size: 24px;
+  cursor: pointer;
+}
+

@@ -130,7 +130,7 @@ Page({
 
   saveChanges: function () {
     const app = getApp();  // 获取全局应用实例
-    const userPhone = app.globalData.userInfo.phone;  // 假设存储了用户信息
+    const userPhone = app.globalData.userInfo.phone;
     const medicationData = this.data.currentMedication;
   
     // 在发送数据之前添加电话号码
