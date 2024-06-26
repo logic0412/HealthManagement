@@ -1,55 +1,53 @@
-// reminders.js
 Page({
-
   data: {
-    medications: []
+    todayMedications: [], // 存储今天需要服用的药物
   },
 
-  onShow: function() {
-    const app = getApp();
-    if (!app.globalData.isUserLoggedIn) {
-      // 用户未登录，显示模态对话框提示登录
-      wx.showModal({
-        title: '提示',
-        content: '您尚未登录，请登录后使用完整功能',
-        showCancel: false,
-        confirmText: '去登录',
-        success: (result) => {
-          if (result.confirm) {
-            // 用户点击去登录，跳转到我的页面
-            wx.switchTab({
-              url: '/pages/profile/profile' // 确保你的“我的”页面路由正确
-            });
-          }
-        }
-      });
-    } else {
-      // 已登录状态下执行的代码
-      this.loadMedications();
-    }
+  // 将药物分配到每个时间段
+  distributeMedications: function (medications) {
+    let schedule = new Array(24).fill(null).map(() => []);
+
+    medications.forEach((med) => {
+      let interval = 24 / med.frequency; // 计算服药间隔
+      for (let i = 0; i < 24; i += interval) {
+        let hour = Math.floor(i);
+        schedule[hour].push({
+          name: med.name,
+          dosage: med.dosage,
+        });
+      }
+    });
+
+    return schedule;
   },
 
   onLoad: function() {
-    this.loadMedications();
-  },
-
-  loadMedications: function () {
-    const app = getApp();
-    const userInfo = app.globalData.userInfo;
-    wx.request({
-      url: "http://192.168.71.16:3000/api/medications",
-      method: "GET",
-      data: { phone: userInfo.phone },
-      success: (res) => {
-        if (res.data.success) {
-          this.setData({ medications: res.data.medications });
-        } else {
-          wx.showToast({
-            title: "加载失败",
-            icon: "none",
-          });
-        }
-      },
+    this.loadTodayMedications().then(medications => {
+      let hourlySchedule = this.distributeMedications(medications);
+      this.setData({ hourlySchedule });
+    }).catch(error => {
+      wx.showToast({ title: '加载失败: ' + error, icon: 'none' });
     });
   },
+  
+
+  loadTodayMedications: function() {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: 'http://58.35.232.125:3000/api/medications/today',
+        method: 'GET',
+        success: (res) => {
+          if (res.data.success) {
+            resolve(res.data.medications);  // 成功时解析medications数据
+          } else {
+            reject(res.data.message);  // 失败时拒绝错误信息
+          }
+        },
+        fail: () => {
+          reject("请求失败");  // 网络或其他原因失败
+        }
+      });
+    });
+  },
+  
 });

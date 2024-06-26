@@ -1,12 +1,12 @@
-<view class="container">
-  <view class="title">服药日历</view>
-  <view class="calendar-container">
-    <block wx:for="{{medications}}" wx:key="id">
-      <view class="medication-item">
-        <text>{{item.name}}</text>
-        <text class="dose-date">下次服药日期: {{item.next_dose_date}}</text>
+<view class="day-schedule">
+  <block wx:for="{{hourlySchedule}}" wx:for-index="hour" wx:key="hour">
+    <view class="hour-block">
+      <view class="hour">{{hour}}:00</view>
+      <view class="medications">
+        <block wx:for="{{item}}" wx:key="index">
+          <view>{{item.name}} - {{item.dosage}}</view>
+        </block>
       </view>
-    </block>
-  </view>
-  
+    </view>
+  </block>
 </view>
