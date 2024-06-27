@@ -94,6 +94,9 @@
 .modal-title {
   font-size: 18px;
   font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+  width: 100%;
 }
 
 .close-icon {

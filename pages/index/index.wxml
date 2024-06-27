@@ -24,11 +24,11 @@
       </view>
       <view class="input-group">
         <label class="input-label">剂量:</label>
-        <input class="input" value="{{currentMedication.dosage}}" bindinput="inputChange" data-param="dosage"/>
+        <input class="input" value="{{currentMedication.dosage}}" placeholder="留空自动填充默认值" bindinput="inputChange" data-param="dosage"/>
       </view>
       <view class="input-group">
         <label class="input-label">频率:</label>
-        <input class="input" value="{{currentMedication.frequency}}" bindinput="inputChange" data-param="frequency"/>
+        <input class="input" value="{{currentMedication.frequency}}" placeholder="留空自动填充默认值" bindinput="inputChange" data-param="frequency"/>
       </view>
       <view class="input-group">
         <label class="input-label">开始日期:</label>
@@ -44,7 +44,7 @@
       </view>
       <view class="input-group">
         <label class="input-label">今日已服用:</label>
-        <input class="input" value="{{currentMedication.taken_today}}" bindinput="inputChange" data-param="taken_today"/>
+        <input class="input" value="{{currentMedication.taken_today}}" placeholder="示例：0" bindinput="inputChange" data-param="taken_today"/>
       </view>
       <view class="input-group">
         <label class="input-label">备注:</label>

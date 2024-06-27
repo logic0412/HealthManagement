@@ -30,5 +30,29 @@ Page({
         url: '/pages/login/login'
       });
     }
+  },
+
+  logout: function() {
+    const app = getApp();
+    // 清空全局登录状态
+    app.globalData.userInfo = null;
+    app.globalData.isUserLoggedIn = false;
+
+    // 可选：清除可能存储的用户信息
+    wx.clearStorage();
+
+    // 提示用户已退出
+    wx.showToast({
+      title: '已退出登录',
+      icon: 'success',
+      duration: 2000,
+      complete: function() {
+        setTimeout(() => {
+          wx.reLaunch({
+            url: '/pages/index/index'
+          });
+        }, 2000); // 2秒后跳转
+      }
+    });
   }
 });

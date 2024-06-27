@@ -435,7 +435,6 @@ app.delete("/api/medications/:id", (req, res) => {
 app.post("/api/medications", (req, res) => {
   const { phone, name, dosage, frequency, start_date, end_date, notes, taken_today } = req.body;
 
-  // 检查必要信息
   if (!phone || !name) {
     return res.status(400).send({ success: false, message: "Phone and Name are required." });
   }
@@ -452,34 +451,56 @@ app.post("/api/medications", (req, res) => {
     }
 
     const userId = userResults[0].id; // 获取用户ID
-    const today = new Date();
-    const nextDoseDay = calculateNextDoseDay(frequency, taken_today, today, end_date);
-
-    // 插入新的药单记录
-    const sql = "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes, taken_today, next_dose_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    db.query(sql, [userId, name, dosage, frequency, start_date, end_date, notes, taken_today, nextDoseDay], (err, result) => {
+    // 查询drug_info表获取默认值
+    const drugInfoSql = "SELECT dosage, frequency_per_day, usage_method FROM drug_info WHERE name = ?";
+    db.query(drugInfoSql, [name], (err, drugInfoResults) => {
       if (err) {
-        console.error("Failed to create a new medication:", err);
-        return res.status(500).send({ success: false, message: "Failed to create a new medication" });
+        console.error("Failed to retrieve drug information:", err);
+        return res.status(500).send({ success: false, message: "Failed to retrieve drug information" });
+      }
+      if (drugInfoResults.length === 0) {
+        return res.status(404).send({ success: false, message: "Drug not found" });
       }
 
-      // 药单创建成功后，插入对应的提醒记录
-      const medicationId = result.insertId;
-      const insertReminder = "INSERT INTO reminders (user_id, medication_id) VALUES (?, ?)";
-      db.query(insertReminder, [userId, medicationId], (err, reminderResult) => {
+      // 使用提供的值或药品信息表中的默认值
+      const defaultDosage = drugInfoResults[0].dosage;
+      const defaultFrequency = drugInfoResults[0].frequency_per_day;
+      const defaultNotes = drugInfoResults[0].usage_method;
+
+      const finalDosage = dosage || defaultDosage;
+      const finalFrequency = frequency || defaultFrequency;
+      const finalNotes = notes || defaultNotes;
+
+      const today = new Date();
+      const nextDoseDay = calculateNextDoseDay(finalFrequency, taken_today, today, end_date);
+
+      // 插入新的药单记录
+      const sql = "INSERT INTO medications (user_id, name, dosage, frequency, start_date, end_date, notes, taken_today, next_dose_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      db.query(sql, [userId, name, finalDosage, finalFrequency, start_date, end_date, finalNotes, taken_today, nextDoseDay], (err, result) => {
         if (err) {
-          console.error("Failed to create a new reminder:", err);
-          return res.status(500).send({ success: false, message: "Failed to create a new reminder" });
+          console.error("Failed to create a new medication:", err);
+          return res.status(500).send({ success: false, message: "Failed to create a new medication" });
         }
-        res.send({
-          success: true,
-          message: "Medication and reminder created successfully",
-          medicationId: medicationId
+
+        // 药单创建成功后，插入对应的提醒记录
+        const medicationId = result.insertId;
+        const insertReminder = "INSERT INTO reminders (user_id, medication_id) VALUES (?, ?)";
+        db.query(insertReminder, [userId, medicationId], (err, reminderResult) => {
+          if (err) {
+            console.error("Failed to create a new reminder:", err);
+            return res.status(500).send({ success: false, message: "Failed to create a new reminder" });
+          }
+          res.send({
+            success: true,
+            message: "Medication and reminder created successfully",
+            medicationId: medicationId
+          });
         });
       });
     });
   });
 });
+
 
 function calculateNextDoseDay(frequency, taken_today, today, end_date) {
   let nextDoseDay = new Date(today);

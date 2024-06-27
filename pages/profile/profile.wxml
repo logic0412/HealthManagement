@@ -4,5 +4,5 @@
     <image src="{{userInfo.avatarUrl || '1814089_account_user_person_profile_avatar_icon.png'}}" class="avatar"></image>
     <text class="username">{{userInfo.phone || userInfo.wechatId || '登录/注册'}}</text>
   </view>
-  <!-- 其他个人页面内容 -->
+  <button class="logout-button" bindtap="logout">退出登录</button>
 </view>
