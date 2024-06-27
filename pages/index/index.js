@@ -105,7 +105,7 @@ Page({
         if (res.confirm) {
           // 用户点击确定
           wx.request({
-            url: `http://192.168.71.16:3000/api/medications/${medicationId}`,
+            url: `http://58.35.232.125:3000/api/medications/${medicationId}`,
             method: "DELETE",
             success: (res) => {
               if (res.data.success) {
@@ -130,7 +130,7 @@ Page({
 
   saveChanges: function () {
     const app = getApp();  // 获取全局应用实例
-    const userPhone = app.globalData.userInfo.phone;  // 假设存储了用户信息
+    const userPhone = app.globalData.userInfo.phone;
     const medicationData = this.data.currentMedication;
   
     // 在发送数据之前添加电话号码
@@ -140,8 +140,8 @@ Page({
     };
 
     const url = this.data.currentMedication.id
-      ? `http://192.168.71.16:3000/api/medications/${this.data.currentMedication.id}` // 如果有 id 则更新
-      : `http://192.168.71.16:3000/api/medications`; // 没有 id 则创建新的药单
+      ? `http://58.35.232.125:3000/api/medications/${this.data.currentMedication.id}` // 如果有 id 则更新
+      : `http://58.35.232.125:3000/api/medications`; // 没有 id 则创建新的药单
 
     wx.request({
       url: url,
@@ -166,7 +166,7 @@ Page({
     const app = getApp();
     const userInfo = app.globalData.userInfo;
     wx.request({
-      url: "http://192.168.71.16:3000/api/medications",
+      url: "http://58.35.232.125:3000/api/medications",
       method: "GET",
       data: { phone: userInfo.phone },
       success: (res) => {
@@ -184,7 +184,7 @@ Page({
 
   loadDrugInfos: function () {
     wx.request({
-      url: 'http://192.168.71.16:3000/api/drug-info',
+      url: 'http://58.35.232.125:3000/api/drug-info',
       method: 'GET',
       success: (res) => {
         if (res.data.success) {

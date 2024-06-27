@@ -1,12 +1,28 @@
-<view class="day-schedule">
-  <block wx:for="{{hourlySchedule}}" wx:for-index="hour" wx:key="hour">
-    <view class="hour-block">
-      <view class="hour">{{hour}}:00</view>
-      <view class="medications">
-        <block wx:for="{{item}}" wx:key="index">
-          <view>{{item.name}} - {{item.dosage}}</view>
-        </block>
+<view class="schedule-container">
+  <view class="schedule-title">今日服药计划</view>
+  <view class="table-header">
+    <view class="time-header">时间</view>
+    <view class="medication-header">药物 - 单次剂量</view>
+  </view>
+  <view class="day-schedule">
+    <block wx:for="{{hourlySchedule}}" wx:for-index="hour" wx:key="hour">
+      <view class="hour-row">
+        <view class="hour-time">{{hour}}</view>
+        <view class="medications">
+          <block wx:for="{{hourlySchedule[hour]}}" wx:key="id">
+            <view class="medication-info" bindtap="showDetails" data-id="{{item.id}}">
+              {{item.name}} - {{item.dosage}}
+            </view>
+          </block>
+        </view>
       </view>
+    </block>
+  </view>
+  <view class="rich-text-container" wx:if="{{showModal}}">
+    <view class="modal-header">
+      <view class="modal-title">{{currentMedicationName}}</view>
+      <view class="close-icon" bindtap="closeDetails">×</view>
     </view>
-  </block>
+    <rich-text nodes="{{richTextDetails}}"></rich-text>
+  </view>
 </view>

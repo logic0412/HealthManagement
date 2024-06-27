@@ -31,7 +31,7 @@ Page({
             return;
         }
         wx.request({
-            url: 'http://192.168.71.16:3000/api/changePassword',
+            url: 'http://58.35.232.125:3000/api/changePassword',
             method: 'POST',
             data: {
                 phone: userInfo.phone,

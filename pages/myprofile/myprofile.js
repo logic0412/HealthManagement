@@ -29,7 +29,7 @@ Page({
     updateUserInfo: function() {
         // 发送请求到服务器更新用户信息
         wx.request({
-            url: 'http://192.168.71.16:3000/api/updateUserInfo', 
+            url: 'http://58.35.232.125:3000/api/updateUserInfo', 
             method: 'POST',
             data: this.data.userInfo,
             success: (res) => {
