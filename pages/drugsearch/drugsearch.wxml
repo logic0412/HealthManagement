@@ -1,0 +1,22 @@
+<view class="container">
+  <view class="search-bar">
+    <input placeholder="请输入药品名称或关键词" value="{{inputVal}}" focus="{{inputShowed}}" bindinput="inputTyping" onBlur="hideInput" />
+    <button bindtap="searchDrugs">搜索药品</button>
+  </view>
+  <view class="search-results">
+    <block wx:for="{{searchResult}}" wx:key="id">
+      <view class="result-item">
+        <view class="label">药品名称：</view>
+        <view class="info">{{item.name}}</view>
+        <view class="label">药品简介：</view>
+        <view class="info">{{item.description}}</view>
+        <view class="label">适用症状：</view>
+        <view class="info">{{item.indications}}</view>
+        <view class="label">副作用：</view>
+        <view class="info">{{item.side_effects}}</view>
+        <view class="label">服用方式：</view>
+        <view class="info">{{item.usage_method}}</view>
+      </view>
+    </block>
+  </view>
+</view>

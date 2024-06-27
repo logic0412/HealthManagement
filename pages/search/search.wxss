@@ -4,50 +4,38 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  height: 100vh;  /* 使用视窗高度确保容器填满整个屏幕 */
   padding: 20px;
 }
 
-.search-bar {
-  display: flex;
-  flex-direction: row; 
-  align-items: center; 
-  margin-bottom: 20px;
-}
-
-.search-bar input {
-  flex-grow: 1; 
-  padding: 10px;
-  border: 2px solid #ccc;
-  border-right: none; 
-  border-radius: 5px 0 0 5px; 
-}
-
-.search-bar button {
-  background-color: #1AAD19;
-  color: white;
-  border-radius: 0 5px 5px 0; 
-  cursor: pointer; 
-}
-
-.search-results view {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.maMap {
-  margin-top: 20px;
-  border-radius: 10px; 
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-}
-
 .search-button button {
-  border: 1px solid #1AAD19;
+
+
+  border: none;
   background-color: #1AAD19;
   color: white;
-  border-radius: 5px; 
+  border-radius: 5px;
   cursor: pointer;
-  display: block; 
-  margin: 10px 0; 
+  font-size: 16px;  /* 增加字体大小，提高可读性 */
+  box-shadow: 0 4px #0a8d07;  /* 添加阴影效果，提高视觉效果 */
+  margin: 10px 0;
+  transition: all 0.3s ease;  /* 添加过渡动画，增强交互体验 */
+}
+
+.search-button button:hover {
+  background-color: #0a8d07;  /* 鼠标悬停时改变按钮颜色 */
+  box-shadow: 0 2px #066005;
+}
+
+.search-button button:active {
+  box-shadow: 0 1px #066005;  /* 点击时的阴影效果 */
+  transform: translateY(2px);  /* 点击时轻微下移 */
+}
+
+.divider {
+  width: 50%;  /* 分隔线宽度 */
+  height: 2px;
+  background-color: #ccc;
+  margin: 10px 0;  /* 分隔线的上下间距 */
 }
 

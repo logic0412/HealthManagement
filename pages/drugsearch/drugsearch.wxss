@@ -1,0 +1,57 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+}
+
+.search-bar {
+  display: flex;
+  flex-direction: row; 
+  align-items: center; 
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  flex-grow: 1; 
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-right: none; 
+  border-radius: 5px 0 0 5px; 
+}
+
+.search-bar button {
+  background-color: #1AAD19;
+  color: white;
+  border-radius: 0 5px 5px 0; 
+  cursor: pointer; 
+}
+
+.search-results .result-item {
+  margin-bottom: 10px; /* 每个结果项之间的间距 */
+  padding: 10px;
+  border: 1px solid #ccc; /* 可选，为搜索结果添加边框 */
+  border-radius: 5px; /* 可选，圆角边框 */
+}
+
+.label, info {
+  display: block; /* 确保每个元素单独占一行 */
+}
+
+.label {
+  color: #333; /* 标签颜色 */
+  font-weight: bold; /* 加粗字体 */
+}
+
+.info {
+  color: #666; /* 药品名称颜色 */
+  margin-bottom: 5px; /* 药品名称与描述之间的间距 */
+}
+
+
+.search-results view {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}

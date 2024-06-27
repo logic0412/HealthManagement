@@ -14,7 +14,9 @@
     "pages/login/login",
     "pages/myprofile/myprofile",
     "pages/resetPassword/resetPassword",
-    "pages/forgetPassword/forgetPassword"
+    "pages/forgetPassword/forgetPassword",
+    "pages/drugsearch/drugsearch",
+    "pages/storesearch/storesearch"
   ],
   "window": {
     "navigationBarBackgroundColor": "#ffffff",
