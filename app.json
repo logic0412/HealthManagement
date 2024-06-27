@@ -4,6 +4,8 @@
       "desc": "你的应用需要获取地理位置权限"
     }
   },
+  "requiredPrivateInfos": ["getLocation"],
+
   "pages": [
     "pages/index/index",
     "pages/reminders/reminders",
