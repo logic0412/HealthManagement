@@ -122,7 +122,7 @@ app.post("/api/login", (req, res) => {
   });
 });
 
-// 更新用户信息API
+// 更新用户信息
 app.post("/api/updateUserInfo", (req, res) => {
   const {
     id,
@@ -135,16 +135,31 @@ app.post("/api/updateUserInfo", (req, res) => {
     dinner_time,
   } = req.body;
 
+  // 验证三餐时间合理性
+  const timesAreValid = (bTime, lTime, dTime) => {
+    const b = new Date('1970-01-01T' + bTime + 'Z');
+    const l = new Date('1970-01-01T' + lTime + 'Z');
+    const d = new Date('1970-01-01T' + dTime + 'Z');
+    return b < l && l < d;
+  };
+
+  if (!timesAreValid(breakfast_time, lunch_time, dinner_time)) {
+    return res.status(400).send({
+      success: false,
+      message: "Meal times are not in a logical order. Ensure breakfast is before lunch and lunch is before dinner."
+    });
+  }
+
   const sql = `
-      UPDATE users SET
-      username = ?,
-      name = ?,
-      email = ?,
-      phone = ?,
-      breakfast_time = ?,
-      lunch_time = ?,
-      dinner_time = ?
-      WHERE id = ?`;
+    UPDATE users SET
+    username = ?,
+    name = ?,
+    email = ?,
+    phone = ?,
+    breakfast_time = ?,
+    lunch_time = ?,
+    dinner_time = ?
+    WHERE id = ?`;
 
   db.query(
     sql,
@@ -166,6 +181,7 @@ app.post("/api/updateUserInfo", (req, res) => {
     }
   );
 });
+
 
 // 重置密码API
 app.post("/api/changePassword", (req, res) => {
@@ -481,20 +497,10 @@ app.post("/api/medications", (req, res) => {
           console.error("Failed to create a new medication:", err);
           return res.status(500).send({ success: false, message: "Failed to create a new medication" });
         }
-
-        // 药单创建成功后，插入对应的提醒记录
-        const medicationId = result.insertId;
-        const insertReminder = "INSERT INTO reminders (user_id, medication_id) VALUES (?, ?)";
-        db.query(insertReminder, [userId, medicationId], (err, reminderResult) => {
-          if (err) {
-            console.error("Failed to create a new reminder:", err);
-            return res.status(500).send({ success: false, message: "Failed to create a new reminder" });
-          }
-          res.send({
-            success: true,
-            message: "Medication and reminder created successfully",
-            medicationId: medicationId
-          });
+        res.send({
+          success: true,
+          message: "Medication and reminder created successfully",
+          medicationId: medicationId
         });
       });
     });
